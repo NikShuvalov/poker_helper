@@ -5,10 +5,12 @@ import java.util.ArrayList;
 
 public class HandParser {
 
+    //ToDo: Need to handle "is Timed out" cause these fucktards added that useless bit of info to the hand history
     private static ArrayList<String> mDealtPlayers = new ArrayList<>();
     private static int mButtonPosition = 0;
     private static int mActivePlayers = 0;
     private static int mActingPlayerIndex = 0;
+
     public static final String FOLDS = "folds";
     public static final String CALLS = "calls";
     public static final String RAISES = "raises";
@@ -85,6 +87,7 @@ public class HandParser {
                             line.replaceAll("\\W","").contains(TURN) ||
                             line.replaceAll("\\W","").contains(RIVER))){
                 street++;
+                mActingPlayerIndex =0;
             } else if (line.replaceAll("\\W","").equals(SUMMARY)){
                 System.out.println("---Summary---");
             }
@@ -106,6 +109,7 @@ public class HandParser {
                         System.out.println(username);
                         mActivePlayers++;
                         mDealtPlayers.add(lastTracked);
+                        TempDataStorage.getInstance().incrementHandCount(lastTracked);
                     }
 
                     //If the 3rd to last string isn't "Received"(magically enough this works for hero as well) then we've moved on to the preflop action.
@@ -118,20 +122,27 @@ public class HandParser {
             }
         }
         System.out.println("Hands: " +hand);
+
     }
 
-    //Use f, r, c to differentiate between Fold, Raise and Check/Call. If check/call check length.
     private static void parsePreflopLine(String line){
-        //Need to find a reliable way of getting the acting player's name. Might require mapping out the hand entirely.
-
-
-//        String[] words = line.split(" ");
-//        String actingPlayer = mDealtPlayers.get(mActingPlayerIndex);
-//        int actionIndex = actingPlayer.split(" ").length+1;
-//        String action = words[actionIndex].replaceAll("\\W","");
-//
-//
-//        mActingPlayerIndex = (mActingPlayerIndex+1) % mActivePlayers;
+        TempDataStorage tempDataStorage = TempDataStorage.getInstance();
+        String[] words = line.split(" ");
+        String actingPlayer = mDealtPlayers.get(mActingPlayerIndex);
+        int actionIndex = actingPlayer.split(" ").length+1;
+        String action = words[actionIndex].replaceAll("\\W","");
+        System.out.println(action);
+        if(action.equals(FOLDS)){
+            mDealtPlayers.remove(mActingPlayerIndex);
+            mActivePlayers--;
+        }else if (action.equals(CALLS)){
+            tempDataStorage.incrementVPIP(actingPlayer);
+        }else if (action.equals(RAISES)){
+            tempDataStorage.incrementVPIP(actingPlayer);
+            tempDataStorage.incrementPFR(actingPlayer);
+        }
+        //I can add in CHECKS but not sure why I would, that's only for BB
+        mActingPlayerIndex = (mActingPlayerIndex+1) % mActivePlayers;
     }
 
 }

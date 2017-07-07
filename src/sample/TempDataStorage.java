@@ -24,12 +24,12 @@ public class TempDataStorage {
         return mPlayerList;
     }
 
-    public void addPlayer(String playerName){
-        if(!mPlayerNames.contains(playerName)){
-            mPlayerNames.add(playerName);
-            mPlayerList.add(new Player(playerName));
-        }
-    }
+//    public void addPlayer(String playerName){
+//        if(!mPlayerNames.contains(playerName)){
+//            mPlayerNames.add(playerName);
+//            mPlayerList.add(new Player(playerName));
+//        }
+//    }
 
     public void incrementHandCount(String playerName){
         if(!mPlayerNames.contains(playerName)){
@@ -40,5 +40,13 @@ public class TempDataStorage {
         }else{
             mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementHands();
         }
+    }
+
+    public void incrementVPIP(String playerName){
+        mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementVPIP();
+    }
+
+    public void incrementPFR(String playerName){
+        mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementPFR();
     }
 }

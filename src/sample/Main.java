@@ -27,6 +27,17 @@ public class Main extends Application {
         File file = new File(HAND_DIRECTORY + "\\HH20170703 T7513467-G43640769.txt");
         HandParser.parseHandHistory(file);
 
+        for(Player p: TempDataStorage.getInstance().getPlayerList()){
+            String playerName = "Player: " + p.getPlayerName();
+            String hands = "Hands: " + p.getTotalHands();
+            String vpip = "VPIP: " + p.getVpipRatio();
+            String pfr = "PFR: " + p.getPreflopRaiseRatio();
+            System.out.println("\n");
+            System.out.println(playerName);
+            System.out.println(hands);
+            System.out.println(vpip);
+            System.out.println(pfr);
+        }
         findPokerWindows();
     }
 

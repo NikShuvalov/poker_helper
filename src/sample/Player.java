@@ -21,11 +21,11 @@ public class Player {
     }
 
     public double getVpipRatio() {
-        return mVPIP/mTotalHands;
+        return ((int)mVPIP*100/mTotalHands)/100.0;
     }
 
     public double getPreflopRaiseRatio() {
-        return mPreFlopRaise/mTotalHands;
+        return ((int)(mPreFlopRaise*100/mTotalHands))/100.0;
     }
 
     public void incrementHands(){
