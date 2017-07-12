@@ -4,12 +4,11 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class HandParser {
-
-    //ToDo: Need to handle "is Timed out" cause these fucktards added that useless bit of info to the hand history
     private static ArrayList<String> mDealtPlayers = new ArrayList<>();
-    private static int mButtonPosition = 0;
+    private static int mButtonPosition = 2;
     private static int mActivePlayers = 0;
     private static int mActingPlayerIndex = 0;
+    private static String mHandID;
 
     public static final String FOLDS = "folds";
     public static final String CALLS = "calls";
@@ -28,6 +27,8 @@ public class HandParser {
     public static final String RIVER = "RIVER";
 
     public static final String SUMMARY = "Summary";
+    public static final String MUCKS = "mucks";
+
 
     /**
      * Pass a handHistory file to this in order to parse the data into something meaningful.
@@ -56,6 +57,8 @@ public class HandParser {
 
             //If "Game ID:" it's a new hand, reset all values and increment hand
             if(words[0].replaceAll("\\W","").equals(GAME) && words[1].replaceAll("\\W","").equals(ID)){
+                mHandID = words[2].replaceAll("\\W", "");
+                System.out.println("Hand #: "+ mHandID);
                 hand++;
                 newHand = true;
                 blindCount=0;
@@ -86,10 +89,11 @@ public class HandParser {
                     (line.replaceAll("\\W","").contains(FLOP) ||
                             line.replaceAll("\\W","").contains(TURN) ||
                             line.replaceAll("\\W","").contains(RIVER))){
-                street++;
+                street++;// Street 0 is preflop, 1 flop, 2 turn, 3 river
                 mActingPlayerIndex =0;
             } else if (line.replaceAll("\\W","").equals(SUMMARY)){
-                System.out.println("---Summary---");
+                System.out.println("line 92 ---Summary---");
+                street = 4; //Street 4 is showdown
             }
 
             //Move to blinds-posting and hand-dealing
@@ -103,26 +107,27 @@ public class HandParser {
                     }
 
                     //Ignores duplicate lines for when each player gets a card.
-                    if(!lastTracked.equals(username.trim())){
+                    username = username.trim();
+
+                    if(!words[words.length-3].replaceAll("\\W","").equals(RECEIVED)){
+                        handsDealt=true;
+                        mActingPlayerIndex = 2 % mActivePlayers;
+                        parsePreflopLine(line);
+                    }else if(!username.isEmpty() && !lastTracked.equals(username)){
                         //Gonna need to create a queue/stack/list/array to keep track of players remaining in hand, in order to keep track of action.
                         lastTracked= username.trim();
-                        System.out.println(username);
+                        System.out.println("line 109:" + username);
                         mActivePlayers++;
                         mDealtPlayers.add(lastTracked);
-                        TempDataStorage.getInstance().incrementHandCount(lastTracked);
+                        tempDataStorage.incrementHandCount(lastTracked);
                     }
 
                     //If the 3rd to last string isn't "Received"(magically enough this works for hero as well) then we've moved on to the preflop action.
-                    if(!words[words.length-3].replaceAll("\\W","").equals(RECEIVED)){
-                        handsDealt=true;
-                        mActingPlayerIndex = (mButtonPosition+1)%mActivePlayers;
-                        parsePreflopLine(line);
-                    }
+
                 }
             }
         }
-        System.out.println("Hands: " +hand);
-
+        System.out.println("Line 124 Hands: " +hand);
     }
 
     private static void parsePreflopLine(String line){
@@ -131,20 +136,33 @@ public class HandParser {
         String actingPlayer = mDealtPlayers.get(mActingPlayerIndex);
         int actionIndex = actingPlayer.split(" ").length+1;
         String action = words[actionIndex].replaceAll("\\W","");
-        System.out.println(action);
-        if(action.equals(FOLDS)){
-            mDealtPlayers.remove(mActingPlayerIndex);
-            mActivePlayers--;
-        }else if (action.equals(CALLS)){
-            tempDataStorage.incrementVPIP(actingPlayer);
-        }else if (action.equals(RAISES)){
-            tempDataStorage.incrementVPIP(actingPlayer);
-            tempDataStorage.incrementPFR(actingPlayer);
+        switch (action) {
+            case FOLDS:
+                System.out.println("Line 141: " + actingPlayer + " " + action);
+                mDealtPlayers.remove(mActingPlayerIndex);
+                mActivePlayers--;
+                mActingPlayerIndex = mActingPlayerIndex % mActivePlayers;
+                break;
+            case CALLS:
+                System.out.println("Line 141: " + actingPlayer + " " + action);
+                tempDataStorage.incrementVPIP(actingPlayer, mHandID);
+                mActingPlayerIndex = (mActingPlayerIndex + 1) % mActivePlayers;
+                break;
+            case RAISES:
+                System.out.println("Line 141: " + actingPlayer + " " + action);
+                tempDataStorage.incrementVPIP(actingPlayer, mHandID);
+                tempDataStorage.incrementPFR(actingPlayer, mHandID);
+                mActingPlayerIndex = (mActingPlayerIndex + 1) % mActivePlayers;
+                break;
+            case CHECKS:
+                System.out.println("Line 141: " + actingPlayer + " " + action);
+                mActingPlayerIndex = (mActingPlayerIndex + 1) % mActivePlayers;
+                break;
+            case MUCKS:
+                System.out.println("Line 141: " + actingPlayer + " " + action);
+                break;
         }
-        //I can add in CHECKS but not sure why I would, that's only for BB
-        mActingPlayerIndex = (mActingPlayerIndex+1) % mActivePlayers;
     }
-
 }
 
 //Line 0 = Hand start time

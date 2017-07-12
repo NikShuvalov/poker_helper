@@ -5,10 +5,12 @@ import java.util.ArrayList;
 public class TempDataStorage {
     private ArrayList<Player> mPlayerList;
     private ArrayList<String> mPlayerNames;
+    private ArrayList<Integer>mPlayerActions;
 
     private TempDataStorage(){
         mPlayerList = new ArrayList<>();
         mPlayerNames = new ArrayList<>();
+        mPlayerActions = new ArrayList<>();
     }
 
     private static TempDataStorage sTempDataStorage;
@@ -42,11 +44,11 @@ public class TempDataStorage {
         }
     }
 
-    public void incrementVPIP(String playerName){
-        mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementVPIP();
+    public void incrementVPIP(String playerName, String handId){
+        mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementVPIP(handId);
     }
 
-    public void incrementPFR(String playerName){
-        mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementPFR();
+    public void incrementPFR(String playerName, String handId){
+        mPlayerList.get(mPlayerNames.indexOf(playerName)).incrementPFR(handId);
     }
 }
