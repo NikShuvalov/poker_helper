@@ -1,5 +1,8 @@
 package sample;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.util.ArrayList;
 
 public class TempDataStorage {
@@ -22,8 +25,9 @@ public class TempDataStorage {
         return sTempDataStorage;
     }
 
-    public ArrayList<Player> getPlayerList() {
-        return mPlayerList;
+    public ObservableList<Player> getPlayerList() {
+        return FXCollections.observableList(mPlayerList);
+
     }
 
 //    public void addPlayer(String playerName){

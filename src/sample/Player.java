@@ -1,45 +1,46 @@
 package sample;
 
 public class Player {
-    private String mPlayerName;
-    private int mTotalHands;
-    private double mVPIP, mPreFlopRaise;
+    private String playerName;
+    private int totalHands;
+    private double vpip;
+    private double preFlopRaise;
     private String mLastRaisedHand, mLastVoluntaryHand;
 
     public Player(String userName){
-        mPlayerName = userName;
-        mTotalHands =0;
-        mVPIP = 0;
-        mPreFlopRaise = 0;
+        this.playerName = userName;
+        this.totalHands =0;
+        this.vpip = 0;
+        this.preFlopRaise = 0;
         mLastRaisedHand = "";
         mLastVoluntaryHand = "";
     }
 
     public String getPlayerName() {
-        return mPlayerName;
+        return this.playerName;
     }
 
     public int getTotalHands() {
-        return mTotalHands;
+        return this.totalHands;
     }
 
-    public double getVpipRatio() {
-        return ((int)mVPIP*100/mTotalHands)/100.0;
+    public double getVpip() {
+        return ((int)this.vpip*100/this.totalHands)/100.0;
     }
 
-    public double getPreflopRaiseRatio() {
-        return ((int)(mPreFlopRaise*100/mTotalHands))/100.0;
+    public double getPreFlopRaise() {
+        return ((int)(preFlopRaise*100/this.totalHands))/100.0;
     }
 
     public void incrementHands(){
-        mTotalHands++;
+        this.totalHands++;
     }
 
     public void incrementVPIP(String handID){
         if(mLastVoluntaryHand.equals(handID)){
             return;
         }
-        mVPIP++;
+        this.vpip++;
         mLastVoluntaryHand = handID;
     }
 
@@ -47,7 +48,7 @@ public class Player {
         if(mLastRaisedHand.equals(handID)){
             return;
         }
-        mPreFlopRaise++;
+        this.preFlopRaise++;
         mLastRaisedHand = handID;
     }
 
